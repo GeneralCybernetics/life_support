@@ -1,5 +1,5 @@
 [package]
-name = "motor_driver_hitl"
+name = "LifeSupport"
 version = "0.1.0"
 edition = "2021"
 debug = 2
