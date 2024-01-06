@@ -3,23 +3,6 @@
 version = 3
 
 [[package]]
-name = "LifeSupport"
-version = "0.1.0"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "defmt",
- "defmt-rtt",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-stm32",
- "embassy-sync",
- "embassy-time",
- "embedded-hal 0.2.7",
- "panic-probe",
-]
-
-[[package]]
 name = "atomic-polyfill"
 version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -534,6 +517,23 @@ name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b9e0384b61958566e926dc50660321d12159025e767c18e043daf26b70104c39"
+
+[[package]]
+name = "life_support"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "defmt",
+ "defmt-rtt",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-stm32",
+ "embassy-sync",
+ "embassy-time",
+ "embedded-hal 0.2.7",
+ "panic-probe",
+]
 
 [[package]]
 name = "litrs"
