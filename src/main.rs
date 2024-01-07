@@ -4,33 +4,24 @@
 
 use defmt::*;
 use embassy_executor::Spawner;
-use embassy_stm32::gpio::{OutputType, Output, Level, Speed};
-use embassy_time::Duration;
-use embassy_stm32::timer::simple_pwm::{PwmPin, SimplePwm};
-use embassy_stm32::timer::Channel;
-use embassy_time::Timer;
-use LifeSupport::PeristalticPump;
+use embassy_stm32::exti::ExtiInput;
+use embassy_stm32::gpio::{Input, Pull};
+use life_support::incubator::PeristalticPump;
+
 use {defmt_rtt as _, panic_probe as _};
+
 
 #[embassy_executor::main]
 async fn main(_spawner: Spawner) {
-    let p = embassy_stm32::init(Default::default());
     info!("Hello World!");
+    let p = embassy_stm32::init(Default::default());
+    let mut pump = PeristalticPump::new(p.PC7, p.PC9);
 
-    let pump_1 = Output::new(p.PC7, Level::Low, Speed::High);
-    let pump_2 = Output::new(p.PC9, Level::Low, Speed::High);
-    let pump_enable = Output::new(p.PA9, Level::Low, Speed::High);
-
-    let mut pump = PeristalticPump::new(pump_1, pump_2, pump_enable);
+    let button = Input::new(p.PA0, Pull::Down);
+    let mut button = ExtiInput::new(button, p.EXTI0);
 
     loop {
-        pump.start_in();
-        Timer::after(Duration::from_millis(1000)).await;
-        pump.stop();
-        Timer::after(Duration::from_millis(300)).await;
-        pump.start_out();
-        Timer::after(Duration::from_millis(1000)).await;
-        pump.stop();
-        Timer::after(Duration::from_millis(300)).await;
+        button.wait_for_rising_edge().await;
+        pump.cycle();
     }
 }

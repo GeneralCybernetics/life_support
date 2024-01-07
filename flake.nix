@@ -27,6 +27,7 @@
           nativeBuildInputs = [
             toolchain
             probe-rs
+            rust-analyzer
           ];
         };
       }
