@@ -5,11 +5,12 @@
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_stm32::gpio::{OutputType, Output, Level, Speed};
-use embassy_time::Duration;
+use embassy_time::{Duration, Timer, Delay};
 use embassy_stm32::timer::simple_pwm::{PwmPin, SimplePwm};
 use embassy_stm32::timer::Channel;
-use embassy_time::Timer;
-use LifeSupport::PeristalticPump;
+use embassy_stm32::adc::{AdcPin, Resolution, Adc, Instance};
+
+use LifeSupport::LinearActuatorSyringeDispenser;
 use {defmt_rtt as _, panic_probe as _};
 
 #[embassy_executor::main]
@@ -17,20 +18,19 @@ async fn main(_spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
     info!("Hello World!");
 
-    let pump_1 = Output::new(p.PC7, Level::Low, Speed::High);
-    let pump_2 = Output::new(p.PC9, Level::Low, Speed::High);
-    let pump_enable = Output::new(p.PA9, Level::Low, Speed::High);
+    let linear_actuator_1 = Output::new(p.PC7, Level::Low, Speed::High);
+    let linear_actuator_2 = Output::new(p.PC9, Level::Low, Speed::High);
+    let mut delay = Delay;
+    let mut adc = Adc::new(p.ADC1, &mut delay);
+    let adc_pin = p.PA0;
 
-    let mut pump = PeristalticPump::new(pump_1, pump_2, pump_enable);
+    let mut syringe_dispenser = LinearActuatorSyringeDispenser::new(linear_actuator_1, linear_actuator_2, adc_pin, adc);
+
+    // this demo dispences 750uL every 300ms. When it depletes the syringe, 
+    // it resets to home, and repeats.
 
     loop {
-        pump.start_in();
-        Timer::after(Duration::from_millis(1000)).await;
-        pump.stop();
-        Timer::after(Duration::from_millis(300)).await;
-        pump.start_out();
-        Timer::after(Duration::from_millis(1000)).await;
-        pump.stop();
+        syringe_dispenser.dispense_ul(750).await;
         Timer::after(Duration::from_millis(300)).await;
     }
 }

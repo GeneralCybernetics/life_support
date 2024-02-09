@@ -1,5 +1,6 @@
 #![no_std]
 
-mod medium_replacement;
+pub mod medium_replacement;
 
-pub use crate::medium_replacement::PeristalticPump;
+
+pub use crate::medium_replacement::LinearActuatorSyringeDispenser;
