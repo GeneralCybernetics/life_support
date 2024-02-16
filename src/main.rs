@@ -8,7 +8,7 @@ use embassy_time::{Duration, Timer, Delay};
 use embassy_stm32::adc::Adc;
 use embassy_stm32::peripherals::{ADC1, ADC2, PA1, PA0, PC7, PC9};
 use life_support::incubator::LinearActuatorSyringeDispenser;
-use life_support::thermistor::Thermistor;
+use life_support::drivers::thermistor::Thermistor;
 use static_cell::make_static;
 
 use {defmt_rtt as _, panic_probe as _};
