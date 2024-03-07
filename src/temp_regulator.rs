@@ -1,22 +1,18 @@
-use crate::drivers::drv8871::DRV8871;
-
 use defmt::info;
 use embassy_stm32::gpio::{Pin, Output, Level, Speed};
 
-pub struct TemperatureRegulator<'a, MCPin1: Pin, MCPin2: Pin> {
-    mc: DRV8871<'a, MCPin1, MCPin2>,
+pub struct TemperatureRegulator<'a, CoolEnable: Pin> {
+    cool_enable: Output<'a, CoolEnable>,
     temp_setpoint: f32
-    
 }
 
 // simple bang-bang temperature regulator
-impl <'a, MCPin1: Pin, MCPin2: Pin> TemperatureRegulator<'a, MCPin1, MCPin2> {
-    pub fn new(mc_pin1: MCPin1, mc_pin2: MCPin2, temp_setpoint: f32) -> Self {
-        let mc_out1 = Output::new(mc_pin1, Level::Low, Speed::High);
-        let mc_out2 = Output::new(mc_pin2, Level::Low, Speed::High);
+impl <'a, CoolEnable: Pin> TemperatureRegulator<'a, CoolEnable> {
+    pub fn new(cool_enable: CoolEnable, temp_setpoint: f32) -> Self {
+        let cool_enable = Output::new(cool_enable, Level::Low, Speed::High);
 
         TemperatureRegulator {
-            mc: DRV8871::new(mc_out1, mc_out2),
+            cool_enable,
             temp_setpoint
         }
     }
@@ -28,17 +24,17 @@ impl <'a, MCPin1: Pin, MCPin2: Pin> TemperatureRegulator<'a, MCPin1, MCPin2> {
 
     pub async fn regulate_temp(&mut self, temp: f32) {
         if temp > self.temp_setpoint {
-            self.bang_cool().await;
+            self.cool_on().await;
         } else {
-            self.bang_heat().await;
+            self.cool_off().await;
         }
     }
 
-    async fn bang_heat(&mut self) {
-        self.mc.forward();
+    async fn cool_off(&mut self) {
+        self.cool_enable.set_low();
     }
 
-    async fn bang_cool(&mut self) {
-        self.mc.reverse();
+    async fn cool_on(&mut self) {
+        self.cool_enable.set_high();
     }
 }

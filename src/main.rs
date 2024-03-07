@@ -19,11 +19,10 @@ const TEMP_CONTROL_LOOP_HZ: f32 = 5.0;
 // need to define these because task functions can't be generic :(
 type ThermistorAdcInstance = ADC2;
 type ThermistorAdcPin = PA1;
-type PCDriverMC1 = PC6;
-type PCDriverMC2 = PC8;
+type CoolEnable = PC6;
 
 #[embassy_executor::task]
-async fn cool_medium(thermistor: &'static mut Thermistor<'_, ThermistorAdcPin, ThermistorAdcInstance>, temp_regulator: &'static mut TemperatureRegulator<'_, PCDriverMC1, PCDriverMC2>) {
+async fn cool_medium(thermistor: &'static mut Thermistor<'_, ThermistorAdcPin, ThermistorAdcInstance>, temp_regulator: &'static mut TemperatureRegulator<'_, CoolEnable>) {
     loop {
         let temp = thermistor.temp_c();
         info!("temp: {} C", temp);
@@ -50,7 +49,7 @@ async fn main(spawner: Spawner) {
 
     let mut syringe_dispenser = LinearActuatorSyringeDispenser::new(p.PC7, p.PC9, adc_pot_pin, adc_pot);
 
-    let temp_regulator = make_static!(TemperatureRegulator::new(p.PC6, p.PC8, 2.0));
+    let temp_regulator = make_static!(TemperatureRegulator::new(p.PC6, 2.0));
     let thermistor = make_static!(Thermistor::new(adc_temp_pin, adc_temp));
 
     spawner.spawn(cool_medium(thermistor, temp_regulator)).unwrap();
@@ -58,7 +57,7 @@ async fn main(spawner: Spawner) {
     // this demo dispences 750uL every 300ms. When it depletes the syringe, 
     // it resets to home, and repeats.
     loop {
-        syringe_dispenser.dispense_ul(750).await;
+        //syringe_dispenser.dispense_ul(750).await;
         Timer::after(Duration::from_millis(300)).await;
     }
 }

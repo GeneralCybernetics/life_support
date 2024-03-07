@@ -1,0 +1,8 @@
+0.000000 INFO  Hello World!
+└─ <mod path> @ └─ <invalid location: defmt frame-index: 6>:0   
+0.000000 TRACE BDCR ok: 00008200
+└─ <mod path> @ └─ <invalid location: defmt frame-index: 33>:0   
+0.000000 DEBUG flash: latency=0
+└─ <mod path> @ └─ <invalid location: defmt frame-index: 21>:0   
+0.000000 DEBUG rcc: Clocks { sys: Hertz(16000000), pclk1: Hertz(16000000), pclk1_tim: Hertz(16000000), pclk2: Hertz(16000000), pclk2_tim: Hertz(16000000), hclk1: Hertz(16000000), hclk2: Hertz(16000000), hclk3: Hertz(16000000), plli2s1_q: None, plli2s1_r: None, pll1_q: None, rtc: Some(Hertz(32000)) }
+└─ <mod path> @ └─ <invalid location: defmt frame-index: 35>:0   
