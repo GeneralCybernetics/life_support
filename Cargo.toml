@@ -12,7 +12,9 @@ cortex-m-rt = "0.7.0"
 embedded-hal = "0.2.6"
 defmt = "0.3"
 defmt-rtt = "0.4"
+libm = "0.2.8"
 panic-probe = { version = "0.3", features = ["print-defmt"] }
+static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [dependencies.embassy-embedded-hal]
 git = "https://github.com/embassy-rs/embassy.git"
