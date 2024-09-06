@@ -15,7 +15,7 @@
       let
         toolchain = with fenix.packages.${system}; fromToolchainFile {
           file = ./rust-toolchain.toml;
-          sha256 = "sha256-f/bfc14czb37QltdurN3BOFER6MxOpHOB82lI7Pj9ys=";
+          sha256 = "sha256-UH3aTxjEdeXYn/uojGVTHrJzZRCc3ODd05EDFvHmtKE=";
         };
         pkgs = import nixpkgs {
           inherit system;
