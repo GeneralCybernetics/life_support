@@ -1,6 +1,6 @@
 use embassy_stm32::i2c::I2c;
 use embassy_stm32::mode::Async;
-use embassy_time::{Timer, Duration};
+use embassy_time::{Duration, Timer};
 
 // Constants for scale factors
 const SLF3X_SCALE_FACTOR_FLOW: f32 = 500.0;
@@ -14,6 +14,9 @@ const CMD_START_MEASUREMENT_LENGTH: usize = 2;
 const CMD_START_MEASUREMENT: [u8; CMD_START_MEASUREMENT_LENGTH] = [0x36, 0x08];
 const DATA_LENGTH: usize = 9;
 const INITIAL_MEASURE_DELAY: u64 = 50; // Milliseconds
+
+// Stop measurement command
+const CMD_STOP_MEASUREMENT: [u8; 2] = [0x3F, 0xF9];
 
 // Soft reset settings
 const SOFT_RESET_I2C_ADDRESS: u8 = 0x00;
@@ -45,18 +48,35 @@ impl<'d> SLF3S<'d> {
     }
 
     pub async fn reset(&mut self) -> Result<(), &'static str> {
-        self.i2c.write(SOFT_RESET_I2C_ADDRESS, &CMD_SOFT_RESET).await.map_err(|_| "Failed to send soft reset")
+        self.i2c
+            .write(SOFT_RESET_I2C_ADDRESS, &CMD_SOFT_RESET)
+            .await
+            .map_err(|_| "Failed to send soft reset")
     }
 
     pub async fn start_measurement(&mut self) -> Result<(), &'static str> {
-        self.i2c.write(self.i2c_address, &CMD_START_MEASUREMENT).await.map_err(|_| "Failed to start measurement")?;
+        self.i2c
+            .write(self.i2c_address, &CMD_START_MEASUREMENT)
+            .await
+            .map_err(|_| "Failed to start measurement")?;
         Timer::after(Duration::from_millis(INITIAL_MEASURE_DELAY.into())).await;
+        Ok(())
+    }
+
+    pub async fn stop_measurement(&mut self) -> Result<(), &'static str> {
+        self.i2c
+            .write(self.i2c_address, &CMD_STOP_MEASUREMENT)
+            .await
+            .map_err(|_| "Failed to stop measurement")?;
         Ok(())
     }
 
     pub async fn read_sample(&mut self) -> Result<(f32, f32), &'static str> {
         let mut data = [0u8; DATA_LENGTH];
-        self.i2c.read(self.i2c_address, &mut data).await.map_err(|_| "Failed to read data")?;
+        self.i2c
+            .read(self.i2c_address, &mut data)
+            .await
+            .map_err(|_| "Failed to read data")?;
         let flow = self.convert_and_scale(data[0], data[1], self.flow_scale_factor);
         let temp = self.convert_and_scale(data[3], data[4], self.temp_scale_factor);
         Ok((flow, temp))
@@ -68,7 +88,7 @@ impl<'d> SLF3S<'d> {
     }
 }
 
-// helpful docs: 
+// helpful docs:
 // 1) https://github.com/embassy-rs/embassy/blob/main/examples/stm32f4/src/bin/i2c_async.rs
 // 2) https://docs.embassy.dev/embassy-stm32/git/stm32f410cb/mode/struct.Async.html
 // 3) https://sensirion.com/media/documents/6971528D/63625D22/Sensirion_Datasheet_SLF3S-1300F.pdf
