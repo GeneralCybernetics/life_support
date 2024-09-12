@@ -3,33 +3,36 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    fenix = {
-      url = "github:nix-community/fenix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    fenix.url = "github:nix-community/fenix";
     flake-utils.url = "github:numtide/flake-utils";
+    fenix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = { self, nixpkgs, fenix, flake-utils, ... }:
-    flake-utils.lib.eachDefaultSystem (system:
+  outputs = { self, nixpkgs, fenix, flake-utils, ... }: {
+    defaultPackage = flake-utils.lib.eachDefaultSystem (system:
       let
-        toolchain = with fenix.packages.${system}; fromToolchainFile {
-          file = ./rust-toolchain.toml;
-          sha256 = "sha256-UH3aTxjEdeXYn/uojGVTHrJzZRCc3ODd05EDFvHmtKE=";
-        };
         pkgs = import nixpkgs {
           inherit system;
+          overlays = [ (fenix.overlay) ];
         };
+        toolchain = pkgs.fromToolchainFile ./rust-toolchain.toml;
       in
-      with pkgs;
-      {
-        devShells.default = mkShell {
-          nativeBuildInputs = [
-            toolchain
-            probe-rs
-            rust-analyzer
-          ];
-        };
+      pkgs.mkShell {
+        nativeBuildInputs = [
+          toolchain
+          pkgs.probe-rs
+          pkgs.rust-analyzer
+          pkgs.gdb-multiarch 
+        ];
+
+        shellHook = ''
+          export MEMORY_X_PATH=${pkgs.stdenvNoCC.mkDerivation {
+            name = "memory-x";
+            src = ./path/to/memory.x;
+            installPhase = "install -Dm644 $src $out/memory.x";
+          }}/memory.x
+        '';
       }
     );
+  };
 }

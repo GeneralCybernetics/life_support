@@ -18,13 +18,12 @@ static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [dependencies.embassy-embedded-hal]
 git = "https://github.com/embassy-rs/embassy.git"
-rev = "14ec0d27bf572376783d762e0c54349fcc85cdcf"
+branch = "main"
 
 [dependencies.embassy-executor]
 git = "https://github.com/embassy-rs/embassy.git"
-rev = "14ec0d27bf572376783d762e0c54349fcc85cdcf"
+branch = "main"
 features = [
-  "nightly",
   "arch-cortex-m",
   "executor-thread",
   "defmt",
@@ -33,27 +32,21 @@ features = [
 
 [dependencies.embassy-stm32]
 git = "https://github.com/embassy-rs/embassy.git"
-rev = "14ec0d27bf572376783d762e0c54349fcc85cdcf"
-#path = "../embassy/embassy-stm32"
+branch = "main"
 features = [
-  "nightly",
   "defmt",
-  "unstable-pac",
   "stm32f407vg",
-  "memory-x",
   "time-driver-any",
   "exti",
-  "unstable-traits",
   "chrono",
 ]
 
 [dependencies.embassy-sync]
 git = "https://github.com/embassy-rs/embassy.git"
-rev = "14ec0d27bf572376783d762e0c54349fcc85cdcf"
+branch = "main"
 features = ["defmt"]
 
 [dependencies.embassy-time]
 git = "https://github.com/embassy-rs/embassy.git"
-rev = "14ec0d27bf572376783d762e0c54349fcc85cdcf"
-#path = "../embassy/embassy-time"
+branch = "main"
 features = ["defmt", "defmt-timestamp-uptime", "tick-hz-32_768"]
